@@ -10,6 +10,7 @@ interface ToolbarProps {
   onLoad: () => void;
   onLoadFolder: () => void;
   onExport: () => void;
+  onClearAll: () => void;
   isDirty: boolean;
 }
 
@@ -18,7 +19,7 @@ const ID_PATTERN = /^[a-z0-9-]+:[a-z0-9-]+$/;
 export function Toolbar({
   menuName, onMenuNameChange,
   commandId, onCommandIdChange,
-  onNew, onLoad, onLoadFolder, onExport,
+  onNew, onLoad, onLoadFolder, onExport, onClearAll,
   isDirty,
 }: ToolbarProps) {
   const idValid = ID_PATTERN.test(commandId);
@@ -73,6 +74,8 @@ export function Toolbar({
         <StrokeButton label="NEW" onClick={onNew} />
         <StrokeButton label="LOAD" onClick={onLoad} />
         <StrokeButton label="LOAD FOLDER" onClick={onLoadFolder} />
+        <div style={{ width: 8 }} />
+        <StrokeButton label="CLEAR ALL" danger onClick={onClearAll} />
         <div style={{ width: 8 }} />
         <StrokeButton label="EXPORT" primary onClick={onExport} />
       </div>

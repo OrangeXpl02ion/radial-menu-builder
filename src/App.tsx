@@ -145,6 +145,7 @@ export function App() {
         onLoad={handleLoad}
         onLoadFolder={handleLoadFolder}
         onExport={handleExport}
+        onClearAll={store.clearAll}
         isDirty={store.isDirty}
       />
       <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>

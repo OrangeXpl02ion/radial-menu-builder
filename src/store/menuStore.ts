@@ -13,8 +13,8 @@ function findCmd(command: string): SlotItem | null {
 
 const SEED_SLOTS: (SlotItem | null)[] = [
   findCmd('command:extrude'),
-  findCmd('command:boolean-union'),
-  findCmd('command:boolean-diff'),
+  findCmd('command:boolean'),
+  findCmd('command:loft'),
   null,
   findCmd('command:fillet'),
   { command: 'user:sketch-tools', icon: 'menu', label: 'Sketch Tools', isNestedMenu: true },
@@ -43,6 +43,7 @@ interface MenuState {
   newMenu(): void;
   loadMenu(menu: RadialMenu): void;
   loadMenus(menus: RadialMenu[]): void;
+  clearAll(): void;
   setIsDirty(v: boolean): void;
 }
 
@@ -162,6 +163,14 @@ export const useMenuStore = create<MenuState>((set, get) => ({
       const newMenus = menus.filter((m) => !existing.has(m.command));
       return { loadedMenus: [...s.loadedMenus, ...newMenus] };
     });
+  },
+
+  clearAll() {
+    set((s) => ({
+      slots: new Array(s.slotCount).fill(null),
+      selectedSlotIndex: null,
+      isDirty: true,
+    }));
   },
 
   setIsDirty(v) {
