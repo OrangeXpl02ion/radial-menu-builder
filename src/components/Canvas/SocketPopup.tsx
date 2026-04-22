@@ -6,6 +6,7 @@ interface SocketPopupProps {
   slotIndex: number;
   slotCount: number;
   svgSize: number;
+  renderedSize: number;
   ringRadius: number;
   onDelete: (i: number) => void;
   onClose: () => void;
@@ -17,7 +18,7 @@ const POP_W = 200;
 const POP_H = 110;
 
 export function SocketPopup({
-  item, slotIndex, slotCount, svgSize, ringRadius, onDelete, onClose,
+  item, slotIndex, slotCount, svgSize, renderedSize, ringRadius, onDelete, onClose,
 }: SocketPopupProps) {
   const color = COMMAND_COLOR_MAP[item.command] || '#4aeadc';
   const cx = svgSize / 2;
@@ -48,12 +49,15 @@ export function SocketPopup({
     top = ay - POP_H - 4;
   }
 
+  // Scale from SVG logical coords to actual rendered pixels
+  const scale = renderedSize / svgSize;
+
   return (
     <div
       style={{
         position: 'absolute',
-        left: `calc(50% - ${svgSize / 2}px + ${left}px)`,
-        top: `calc(50% - ${svgSize / 2}px + ${top}px)`,
+        left: left * scale,
+        top: top * scale,
         width: POP_W,
         background: '#0a0a0a',
         border: `1px solid ${color}`,

@@ -13,6 +13,7 @@ const TOTAL = COMMAND_CATEGORIES.reduce((s, c) => s + c.commands.length, 0);
 
 export function CommandLibrary({ onAssign, assignedCommands }: CommandLibraryProps) {
   const [query, setQuery] = useState('');
+  const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1100);
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
     const e: Record<string, boolean> = {};
     COMMAND_CATEGORIES.forEach((c, i) => { e[c.id] = i < 3; });
@@ -33,6 +34,43 @@ export function CommandLibrary({ onAssign, assignedCommands }: CommandLibraryPro
 
   function toggleExpanded(id: string) {
     setExpanded((e) => ({ ...e, [id]: !e[id] }));
+  }
+
+  if (collapsed) {
+    return (
+      <div style={{
+        width: 36,
+        flexShrink: 0,
+        background: '#0c0c0c',
+        borderRight: '1px solid #1a1a1a',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        paddingTop: 10,
+        gap: 8,
+      }}>
+        <div
+          onClick={() => setCollapsed(false)}
+          title="Show command library"
+          style={{
+            width: 20, height: 20,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+            fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+            fontSize: 10, color: '#666666',
+            border: '1px solid #2a2a2a',
+            userSelect: 'none',
+          }}
+        >▶</div>
+        <div style={{
+          fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+          fontSize: 8, color: '#444444',
+          letterSpacing: '0.1em',
+          writingMode: 'vertical-rl',
+          marginTop: 4,
+        }}>LIBRARY</div>
+      </div>
+    );
   }
 
   return (
@@ -76,6 +114,20 @@ export function CommandLibrary({ onAssign, assignedCommands }: CommandLibraryPro
           padding: '1px 6px',
           border: '1px solid #2a2a2a',
         }}>{q ? `${totalMatches}/` : ''}{TOTAL}</span>
+        <div
+          onClick={() => setCollapsed(true)}
+          title="Hide command library"
+          style={{
+            width: 20, height: 20,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+            fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+            fontSize: 10, color: '#555555',
+            border: '1px solid #2a2a2a',
+            userSelect: 'none',
+            marginLeft: 4,
+          }}
+        >◀</div>
       </div>
 
       {/* Search */}

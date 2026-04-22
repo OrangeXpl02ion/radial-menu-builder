@@ -1,3 +1,4 @@
+import { useRef, useState, useEffect } from 'react';
 import type { SlotItem, CommandDef } from '../../types/radial';
 import { COMMAND_COLOR_MAP } from '../../data/commands';
 import { Socket } from './Socket';
@@ -39,6 +40,20 @@ export function RadialCanvas({
   const positions = getPositions(slotCount);
   const filledCount = slots.slice(0, slotCount).filter(Boolean).length;
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canvasSize, setCanvasSize] = useState(SIZE);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setCanvasSize(Math.min(Math.floor(width), Math.floor(height), SIZE));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   function handleWheel(e: React.WheelEvent) {
     e.preventDefault();
     onWheel(e.deltaY > 0 ? -1 : 1);
@@ -56,11 +71,12 @@ export function RadialCanvas({
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const px = e.clientX - rect.left;
       const py = e.clientY - rect.top;
-      // Scale from container coords to SVG coords
-      const scaleX = SIZE / rect.width;
-      const scaleY = SIZE / rect.height;
-      const sx = px * scaleX;
-      const sy = py * scaleY;
+      // Account for centered SVG wrapper within the container
+      const offsetX = (rect.width - canvasSize) / 2;
+      const offsetY = (rect.height - canvasSize) / 2;
+      const scale = SIZE / canvasSize;
+      const sx = (px - offsetX) * scale;
+      const sy = (py - offsetY) * scale;
       let nearest = 0;
       let minDist = Infinity;
       positions.forEach((pos, i) => {
@@ -150,14 +166,18 @@ export function RadialCanvas({
       </div>
 
       {/* SVG */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
+      <div
+        ref={containerRef}
+        style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        <div style={{ position: 'relative', width: canvasSize, height: canvasSize, flexShrink: 0 }}>
         <svg
-          width={SIZE} height={SIZE}
+          width={canvasSize} height={canvasSize}
           viewBox={`0 0 ${SIZE} ${SIZE}`}
-          style={{ overflow: 'visible' }}
+          style={{ overflow: 'visible', display: 'block' }}
         >
           {/* Outer bounding frame */}
           <rect x="40" y="40" width={SIZE - 80} height={SIZE - 80}
@@ -259,18 +279,20 @@ export function RadialCanvas({
           ))}
         </svg>
 
-        {/* HTML popup overlay */}
+        {/* HTML popup overlay — positioned inside the scaled square wrapper */}
         {selectedIndex !== null && selectedItem && (
           <SocketPopup
             item={selectedItem}
             slotIndex={selectedIndex}
             slotCount={slotCount}
             svgSize={SIZE}
+            renderedSize={canvasSize}
             ringRadius={RING_RADIUS}
             onDelete={onDeleteSlot}
             onClose={() => onSelectSlot(selectedIndex)}
           />
         )}
+        </div>
       </div>
     </div>
   );

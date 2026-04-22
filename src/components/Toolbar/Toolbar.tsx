@@ -31,6 +31,7 @@ export function Toolbar({
       borderBottom: '1px solid #1a1a1a',
       background: '#0c0c0c',
       flexShrink: 0,
+      overflowX: 'auto',
     }}>
       {/* Brand block */}
       <div style={{
