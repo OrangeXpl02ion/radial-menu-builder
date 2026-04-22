@@ -48,7 +48,13 @@ export function RadialCanvas({
     if (!el) return;
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      setCanvasSize(Math.min(Math.floor(width), Math.floor(height), SIZE));
+      // Popup bleeds beyond the SVG viewBox: 70 SVG units top/bottom, 160 left/right.
+      // Scale canvasSize so the popup always fits inside the container.
+      const BLEED_V = 78;  // 70 + 8px breathing room
+      const BLEED_H = 168; // 160 + 8px breathing room
+      const maxH = Math.floor(height * SIZE / (SIZE + 2 * BLEED_V));
+      const maxW = Math.floor(width  * SIZE / (SIZE + 2 * BLEED_H));
+      setCanvasSize(Math.min(maxH, maxW, SIZE));
     });
     ro.observe(el);
     return () => ro.disconnect();
